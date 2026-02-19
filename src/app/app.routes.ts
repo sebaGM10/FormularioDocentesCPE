@@ -6,10 +6,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/registro/registro'),
   },
   {
-    path: 'acta',
-    loadComponent: () => import('./pages/acta/acta'),
-  },
-  {
     path: 'prueba',
     loadComponent: () => import('./pages/prueba/prueba'),
   },

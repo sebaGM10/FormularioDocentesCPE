@@ -176,7 +176,7 @@ export default class ActaComponent {
     this.errorMsg.set('');
 
     try {
-      const url = await this.firebase.uploadActa(file, user.cedula);
+      const url = await this.firebase.uploadFile(file, `actas/${user.cedula}`);
       await this.firebase.updateUser(user.docId, { actaNombramientoURL: url });
       this.flow.updateUser({ actaNombramientoURL: url });
       this.router.navigate(['/prueba']);

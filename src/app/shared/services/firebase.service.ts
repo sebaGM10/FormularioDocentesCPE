@@ -15,12 +15,39 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export interface UserRecord {
   id?: string;
-  nombre: string;
+  // Identificación
+  tipoDocumento: string;
   cedula: string;
+  primerNombre: string;
+  segundoNombre?: string;
+  primerApellido: string;
+  segundoApellido?: string;
+  // Datos personales
+  fechaNacimiento: string;
+  genero: string;
+  codigoPais: string;
+  celular: string;
   correo: string;
+  // Ubicación
+  departamento: string;
+  municipio: string;
+  direccion?: string;
+  // Información profesional
+  cargo: string;
+  sedeEducativa: string;
+  codigoDANE: string;
+  area: string;
+  tipoVinculacion: string;
+  nivelPertenece: string;
+  // Validaciones
   enSIM: boolean;
   enDocentes: boolean;
+  // Nombre completo (calculado al guardar)
+  nombre?: string;
+  // Documentos
   actaNombramientoURL?: string;
+  cedulaDocURL?: string;
+  // Resultados
   nivel?: 'Básico' | 'Intermedio' | 'Avanzado';
   puntaje?: number;
   modalidad?: 'Virtual' | 'Presencial';
@@ -45,15 +72,14 @@ export class FirebaseService {
     return !snapshot.empty;
   }
 
-  async uploadActa(file: File, cedula: string): Promise<string> {
-    const storageRef = ref(storage, `actas/${cedula}_${Date.now()}.pdf`);
+  async uploadFile(file: File, path: string): Promise<string> {
+    const storageRef = ref(storage, path);
     await uploadBytes(storageRef, file);
     return getDownloadURL(storageRef);
   }
 
   async saveUser(user: UserRecord): Promise<string> {
-    // const docId = user.cedula; // La cédula es el nombre del documento
-    const docId = `user_${user.cedula.trim()}`; // Prefijo para evitar conflictos con otras colecciones
+    const docId = `user_${user.cedula.trim()}`;
     const docRef = doc(db, 'users', docId);
     await setDoc(docRef, {
       ...user,

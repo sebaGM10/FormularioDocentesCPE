@@ -52,3 +52,4 @@ Thumbs.db
 .vscode/launch.json
 .vscode/mcp.json
 .vscode/tasks.json
+/src/environments

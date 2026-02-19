@@ -5,14 +5,6 @@ import { ZardCardComponent } from '@/shared/components/card';
 import { ZardBadgeComponent } from '@/shared/components/badge';
 import { ZardIconComponent } from '@/shared/components/icon';
 import { ZardAlertComponent } from '@/shared/components/alert';
-import {
-  ZardTableComponent,
-  ZardTableHeaderComponent,
-  ZardTableBodyComponent,
-  ZardTableRowComponent,
-  ZardTableHeadComponent,
-  ZardTableCellComponent,
-} from '@/shared/components/table';
 import { FirebaseService, type UserRecord } from '@/shared/services/firebase.service';
 
 @Component({
@@ -24,12 +16,6 @@ import { FirebaseService, type UserRecord } from '@/shared/services/firebase.ser
     ZardBadgeComponent,
     ZardIconComponent,
     ZardAlertComponent,
-    ZardTableComponent,
-    ZardTableHeaderComponent,
-    ZardTableBodyComponent,
-    ZardTableRowComponent,
-    ZardTableHeadComponent,
-    ZardTableCellComponent,
   ],
   template: `
     <div class="min-h-screen bg-muted/30">
@@ -111,104 +97,123 @@ import { FirebaseService, type UserRecord } from '@/shared/services/firebase.ser
           <z-alert zType="destructive" [zTitle]="errorMsg()" class="mb-4" />
         }
 
-        <!-- Table -->
-        <z-card>
-          @if (loading()) {
+        <!-- Users list -->
+        @if (loading()) {
+          <z-card>
             <div class="flex items-center justify-center py-12">
               <z-icon zType="loader-circle" class="text-brand animate-spin" zSize="xl" />
             </div>
-          } @else if (users().length === 0) {
+          </z-card>
+        } @else if (users().length === 0) {
+          <z-card>
             <div class="text-center py-12">
               <z-icon zType="inbox" class="text-muted-foreground mx-auto mb-3" zSize="xl" />
               <p class="text-muted-foreground">No hay registros aún.</p>
             </div>
-          } @else {
-            <div class="overflow-x-auto">
-              <table z-table>
-                <thead z-table-header>
-                  <tr z-table-row>
-                    <th z-table-head>Nombre</th>
-                    <th z-table-head>Cédula</th>
-                    <th z-table-head>Correo</th>
-                    <th z-table-head>En SIM</th>
-                    <th z-table-head>En Docentes</th>
-                    <th z-table-head>Acta</th>
-                    <th z-table-head>Puntaje</th>
-                    <th z-table-head>Nivel</th>
-                    <th z-table-head>Modalidad</th>
-                  </tr>
-                </thead>
-                <tbody z-table-body>
-                  @for (user of users(); track user.id) {
-                    <tr z-table-row>
-                      <td z-table-cell class="font-medium">{{ user.nombre }}</td>
-                      <td z-table-cell>{{ user.cedula }}</td>
-                      <td z-table-cell class="text-muted-foreground">{{ user.correo }}</td>
-                      <td z-table-cell>
-                        @if (user.enSIM) {
-                          <z-badge zType="default" zShape="pill">Sí</z-badge>
-                        } @else {
-                          <z-badge zType="outline" zShape="pill">No</z-badge>
-                        }
-                      </td>
-                      <td z-table-cell>
-                        @if (user.enDocentes) {
-                          <z-badge zType="default" zShape="pill">Sí</z-badge>
-                        } @else {
-                          <z-badge zType="outline" zShape="pill">No</z-badge>
-                        }
-                      </td>
-                      <td z-table-cell>
-                        @if (user.actaNombramientoURL) {
-                          <a
-                            [href]="user.actaNombramientoURL"
-                            target="_blank"
-                            class="text-brand hover:underline inline-flex items-center gap-1"
-                          >
-                            <z-icon zType="file-text" zSize="sm" />
-                            Ver
-                          </a>
-                        } @else if (!user.enSIM) {
-                          <span class="text-muted-foreground">Pendiente</span>
-                        } @else {
-                          <span class="text-muted-foreground">N/A</span>
-                        }
-                      </td>
-                      <td z-table-cell>
-                        @if (user.puntaje !== undefined) {
-                          <span class="font-medium">{{ user.puntaje }}%</span>
-                        } @else {
-                          <span class="text-muted-foreground">—</span>
-                        }
-                      </td>
-                      <td z-table-cell>
-                        @if (user.nivel) {
-                          <z-badge
-                            [zType]="user.nivel === 'Avanzado' ? 'default' : user.nivel === 'Intermedio' ? 'secondary' : 'outline'"
-                            zShape="pill"
-                          >
-                            {{ user.nivel }}
-                          </z-badge>
-                        } @else {
-                          <span class="text-muted-foreground">—</span>
-                        }
-                      </td>
-                      <td z-table-cell>
-                        @if (user.modalidad) {
-                          <z-badge zType="secondary" zShape="pill">
-                            {{ user.modalidad }}
-                          </z-badge>
-                        } @else {
-                          <span class="text-muted-foreground">—</span>
-                        }
-                      </td>
-                    </tr>
+          </z-card>
+        } @else {
+          <div class="space-y-4">
+            @for (user of users(); track user.id) {
+              <z-card>
+                <div class="space-y-4">
+                  <!-- Header row: Name, badges, and results -->
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 class="font-semibold text-foreground text-base">{{ user.nombre }}</h3>
+                      <p class="text-sm text-muted-foreground">{{ user.tipoDocumento }} · {{ user.cedula }}</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                      @if (user.enSIM) {
+                        <z-badge zType="default" zShape="pill">SIM</z-badge>
+                      }
+                      @if (user.enDocentes) {
+                        <z-badge zType="default" zShape="pill">Docentes</z-badge>
+                      }
+                      @if (user.nivel) {
+                        <z-badge
+                          [zType]="user.nivel === 'Avanzado' ? 'default' : user.nivel === 'Intermedio' ? 'secondary' : 'outline'"
+                          zShape="pill"
+                        >
+                          {{ user.nivel }} · {{ user.puntaje }}%
+                        </z-badge>
+                      }
+                      @if (user.modalidad) {
+                        <z-badge zType="secondary" zShape="pill">{{ user.modalidad }}</z-badge>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="h-px bg-border"></div>
+
+                  <!-- Details grid -->
+                  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3 text-sm">
+                    <div>
+                      <p class="text-xs text-muted-foreground mb-0.5">Correo</p>
+                      <p class="text-foreground break-all">{{ user.correo }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-muted-foreground mb-0.5">Celular</p>
+                      <p class="text-foreground">{{ user.codigoPais }} {{ user.celular }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-muted-foreground mb-0.5">Departamento</p>
+                      <p class="text-foreground">{{ user.departamento }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-muted-foreground mb-0.5">Municipio</p>
+                      <p class="text-foreground">{{ user.municipio }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-muted-foreground mb-0.5">Cargo</p>
+                      <p class="text-foreground">{{ user.cargo }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-muted-foreground mb-0.5">Sede Educativa</p>
+                      <p class="text-foreground">{{ user.sedeEducativa }}</p>
+                    </div>
+                    @if (user.codigoDANE) {
+                      <div>
+                        <p class="text-xs text-muted-foreground mb-0.5">Código DANE</p>
+                        <p class="text-foreground">{{ user.codigoDANE }}</p>
+                      </div>
+                    }
+                    <div>
+                      <p class="text-xs text-muted-foreground mb-0.5">Área</p>
+                      <p class="text-foreground">{{ user.area }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Documents row -->
+                  @if (user.actaNombramientoURL || user.cedulaDocURL) {
+                    <div class="flex items-center gap-4 pt-1">
+                      <span class="text-xs text-muted-foreground">Documentos:</span>
+                      @if (user.actaNombramientoURL) {
+                        <a
+                          [href]="user.actaNombramientoURL"
+                          target="_blank"
+                          class="text-brand hover:underline inline-flex items-center gap-1 text-xs font-medium"
+                        >
+                          <z-icon zType="file-text" zSize="sm" />
+                          Acta
+                        </a>
+                      }
+                      @if (user.cedulaDocURL) {
+                        <a
+                          [href]="user.cedulaDocURL"
+                          target="_blank"
+                          class="text-brand hover:underline inline-flex items-center gap-1 text-xs font-medium"
+                        >
+                          <z-icon zType="file-check" zSize="sm" />
+                          Cédula
+                        </a>
+                      }
+                    </div>
                   }
-                </tbody>
-              </table>
-            </div>
-          }
-        </z-card>
+                </div>
+              </z-card>
+            }
+          </div>
+        }
       </main>
     </div>
   `,
